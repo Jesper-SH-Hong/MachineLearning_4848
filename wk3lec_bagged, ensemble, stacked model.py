@@ -223,41 +223,211 @@
 #     print(report)
 
 
+#
+# #Exercise7
+# import pandas  as pd
+# from sklearn.metrics import classification_report
+#
+# # Get the housing data
+# df = pd.read_csv('data/housing_classification.csv')
+# # Show all columns.
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.width', 1000)
+# print(df.head(5))
+#
+# # Split into two sets
+# y = df['price']
+# X = df.drop('price', axis=1)
+#
+# from sklearn.model_selection import train_test_split
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
+#
+# from sklearn.model_selection import cross_val_score
+# from mlxtend.classifier      import EnsembleVoteClassifier
+# from xgboost                 import XGBClassifier, plot_importance
+# from sklearn.ensemble        import AdaBoostClassifier, GradientBoostingClassifier
+#
+# ada_boost   = AdaBoostClassifier()
+# grad_boost  = GradientBoostingClassifier()
+# xgb_boost   = XGBClassifier()
+# eclf        = EnsembleVoteClassifier(clfs=[ada_boost, grad_boost,
+#                                            xgb_boost], voting='hard')
+# classifiers = [ada_boost, grad_boost, xgb_boost, eclf]
+#
+#
+# for clf in classifiers:
+#     print(clf.__class__.__name__)
+#     clf.fit(X_train, y_train)
+#     predictions = clf.predict(X_test)
+#     report = classification_report(y_test, predictions)
+#     print(report)
 
-#Exercise7
-import pandas  as pd
-from sklearn.metrics import classification_report
 
-# Get the housing data
-df = pd.read_csv('data/housing_classification.csv')
+
+
+#Exercise 8 Stacking Regression
+# from sklearn.linear_model    import LinearRegression
+# from sklearn.linear_model    import ElasticNet
+# from sklearn.tree            import DecisionTreeRegressor
+# from sklearn.svm             import SVR
+# from sklearn.ensemble        import AdaBoostRegressor
+# from sklearn.ensemble        import RandomForestRegressor
+# from sklearn.ensemble        import ExtraTreesRegressor
+# from sklearn.metrics         import mean_squared_error
+# from sklearn.model_selection import train_test_split
+# import numpy  as np
+# import pandas as pd
+#
+# # Show all columns.
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.width', 1000)
+#
+# # Prep data.
+# PATH     = "data/"
+# CSV_DATA = "winequality.csv"
+# dataset  = pd.read_csv(PATH + CSV_DATA)
+# X = dataset[['fixed acidity', 'volatile acidity', 'citric acid', 'residual sugar',
+#              'chlorides', 'free sulfur dioxide', 'total sulfur dioxide', 'density',
+#              'pH', 'sulphates','alcohol']].values
+# y = dataset['quality']
+#
+# def getUnfitModels():
+#     models = list()
+#     models.append(ElasticNet())
+#     models.append(SVR(gamma='scale'))
+#     models.append(DecisionTreeRegressor())
+#     models.append(AdaBoostRegressor())
+#     models.append(RandomForestRegressor(n_estimators=200))
+#     models.append(ExtraTreesRegressor(n_estimators=200))
+#     return models
+#
+# def evaluateModel(y_test, predictions, model):
+#     mse = mean_squared_error(y_test, predictions)
+#     rmse = round(np.sqrt(mse),3)
+#     print(" RMSE:" + str(rmse) + " " + model.__class__.__name__)
+#
+# def fitBaseModels(X_train, y_train, X_test, models):
+#     dfPredictions = pd.DataFrame()
+#
+#     # Fit base model and store its predictions in dataframe.
+#     for i in range(0, len(models)):
+#         models[i].fit(X_train, y_train)
+#         predictions = models[i].predict(X_test)
+#         colName = str(i)
+#         # Add base model predictions to column of data frame.
+#         dfPredictions[colName] = predictions   #base 모델로 예측한 것에 대해 fit할 것.
+#     return dfPredictions, models
+#
+# def fitStackedModel(X, y):
+#     model = LinearRegression()   #여기선 Linear했지만 랜덤포레스트든 xgBooster든 뭐든 괜춘
+#     model.fit(X, y)
+#     return model
+#
+# # Split data into train, test and validation sets.
+# X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.70)
+# X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.50)  #temp를 만들고 그걸 쪼개네 ㅋㅋ
+#
+# # Get base models.
+# unfitModels = getUnfitModels()
+#
+# # Fit base and stacked models.
+# dfPredictions, models = fitBaseModels(X_train, y_train, X_val, unfitModels)
+# stackedModel          = fitStackedModel(dfPredictions, y_val)   #걔네들의 결과에 대해 stacked갖고 fit할 것.(재예측)
+#
+# # Evaluate base models with validation data.
+# print("\n** Evaluate Base Models **")
+# dfValidationPredictions = pd.DataFrame()
+# for i in range(0, len(models)):
+#     predictions = models[i].predict(X_test)
+#     colName = str(i)
+#     dfValidationPredictions[colName] = predictions
+#     evaluateModel(y_test, predictions, models[i])
+#
+# # Evaluate stacked model with validation data.
+# stackedPredictions = stackedModel.predict(dfValidationPredictions)
+# print("\n** Evaluate Stacked Model **")
+# evaluateModel(y_test, stackedPredictions, stackedModel)
+
+
+
+
+#EXercise 9 Stacked classification
+from sklearn.linear_model    import LogisticRegression
+from sklearn.tree            import DecisionTreeClassifier
+from sklearn.ensemble        import AdaBoostClassifier
+from sklearn.ensemble        import RandomForestClassifier
+from sklearn.metrics         import classification_report
+from sklearn.model_selection import train_test_split
+import numpy  as np
+import pandas as pd
+
 # Show all columns.
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 1000)
-print(df.head(5))
 
-# Split into two sets
-y = df['price']
-X = df.drop('price', axis=1)
+# Prepare the data.
+# Get the housing data
+df = pd.read_csv('data/iris_v2.csv')
 
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
+dict_map = {'Iris-setosa':0,'Iris-versicolor':1, 'Iris-virginica':2}
+df['target'] = df['iris_type'].map(dict_map)
 
-from sklearn.model_selection import cross_val_score
-from mlxtend.classifier      import EnsembleVoteClassifier
-from xgboost                 import XGBClassifier, plot_importance
-from sklearn.ensemble        import AdaBoostClassifier, GradientBoostingClassifier
+y = df['target']
+X = df.copy()
+del X['target']
+del X['iris_type']
 
-ada_boost   = AdaBoostClassifier()
-grad_boost  = GradientBoostingClassifier()
-xgb_boost   = XGBClassifier()
-eclf        = EnsembleVoteClassifier(clfs=[ada_boost, grad_boost,
-                                           xgb_boost], voting='hard')
-classifiers = [ada_boost, grad_boost, xgb_boost, eclf]
+def getUnfitModels():
+    models = list()
+    models.append(LogisticRegression())
+    models.append(DecisionTreeClassifier())
+    models.append(AdaBoostClassifier())
+    models.append(RandomForestClassifier(n_estimators=10))
+    return models
 
-
-for clf in classifiers:
-    print(clf.__class__.__name__)
-    clf.fit(X_train, y_train)
-    predictions = clf.predict(X_test)
+def evaluateModel(y_test, predictions, model):
+    print("\n*** " + model.__class__.__name__)
     report = classification_report(y_test, predictions)
     print(report)
+
+def fitBaseModels(X_train, y_train, X_test, models):
+    dfPredictions = pd.DataFrame()
+
+    # Fit base model and store its predictions in dataframe.
+    for i in range(0, len(models)):
+        models[i].fit(X_train, y_train)
+        predictions = models[i].predict(X_test)
+        colName = str(i)
+        dfPredictions[colName] = predictions
+    return dfPredictions, models
+
+def fitStackedModel(X, y):
+    model = LogisticRegression()
+    model.fit(X, y)
+    return model
+
+# Split data into train, test and validation sets.
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.70)
+X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.50)
+
+# Get base models.
+unfitModels = getUnfitModels()
+
+# Fit base and stacked models.
+dfPredictions, models = fitBaseModels(X_train, y_train, X_val, unfitModels)
+stackedModel          = fitStackedModel(dfPredictions, y_val)
+
+# Evaluate base models with validation data.
+print("\n** Evaluate Base Models **")
+dfValidationPredictions = pd.DataFrame()
+for i in range(0, len(models)):
+    predictions = models[i].predict(X_test)
+    colName = str(i)
+    dfValidationPredictions[colName] = predictions
+    evaluateModel(y_test, predictions, models[i])
+
+# Evaluate stacked model with validation data.
+stackedPredictions = stackedModel.predict(dfValidationPredictions)
+print("\n** Evaluate Stacked Model **")
+evaluateModel(y_test, stackedPredictions, stackedModel)
+
